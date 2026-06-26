@@ -174,9 +174,11 @@ async function guardarCambios() {
             body: JSON.stringify(payload)
         });
 
-        const response = await fetch('/actualizar-config/', {
+        const response = await fetch('/actualizar-config/', { // Pon la barra al final
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(payload)
         });
 
