@@ -115,3 +115,11 @@ def registro_api(request):
             {"error": str(e)},
             status=500
         )
+    
+@csrf_exempt
+def actualizar_config_api(request):
+    if request.method == "POST":
+        # 1. Recibes el JSON del frontend
+        # 2. Publicas el mensaje al broker MQTT (usando la librería paho-mqtt)
+        # 3. Retornas {"status": "ok"}
+        return JsonResponse({"status": "ok"})
