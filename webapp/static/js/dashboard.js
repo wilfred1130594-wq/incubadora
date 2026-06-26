@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location = "index.html";
         return;
     }
-
+    
     // Carga inicial
     cargarEstadoActual();
     cargarDatos();
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function cargarEstadoActual() {
     try {
         const id = localStorage.getItem("id_incubadora");
-
+        
         const { data, error } = await _supabase
             .from('estado_incubadora')
             .select('*')
@@ -81,7 +81,7 @@ async function cargarEstadoActual() {
 async function cargarDatos() {
     try {
         const id = localStorage.getItem("id_incubadora");
-
+        
         const { data, error } = await _supabase
             .from('datos_incubadora')
             .select('*')
@@ -131,9 +131,9 @@ function dibujarGrafica(data) {
                 { label: "Hum (%)", data: hums, borderColor: "#3b82f6", tension: 0.3, fill: false }
             ]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
             animation: false,
             scales: { y: { beginAtZero: false } }
         }
@@ -155,7 +155,7 @@ function cerrarModal() {
 
 async function guardarCambios() {
     const id = localStorage.getItem("id_incubadora");
-
+    
     // Preparamos el paquete de datos para el ESP32
     const payload = {
         id: id,
@@ -174,21 +174,15 @@ async function guardarCambios() {
             body: JSON.stringify(payload)
         });
 
-        const response = await fetch('/actualizar-config/', { // Pon la barra al final
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        if (!response.ok) throw new Error("El servidor de control no responde");
 
         alert("🚀 Configuración enviada. El ESP32 se está inicializando...");
         cerrarModal();
-
+        
         // Esperamos 2 segundos para que el ESP32 reciba, procese 
         // y actualice la base de datos antes de refrescar la pantalla
-        setTimeout(cargarEstadoActual, 2000);
-
+        setTimeout(cargarEstadoActual, 2000); 
+        
     } catch (err) {
         alert("❌ Error al conectar con el sistema: " + err.message);
     }

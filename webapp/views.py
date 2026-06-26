@@ -8,6 +8,32 @@ from .supabase_client import supabase
 
 # ... (tus funciones login_view, registro_view, dashboard_view se quedan igual) ...
 
+@csrf_exempt
+def actualizar_config_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Solo se permite POST"}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        
+        # 🔹 Publicar al ESP32 vía MQTT
+        publish.single(
+            "jhosimar/config", 
+            json.dumps(data), 
+            hostname=os.environ.get("MQTT_BROKER"),
+            auth={
+                'username': os.environ.get("MQTT_USER"), 
+                'password': os.environ.get("MQTT_PASS")
+            },
+            port=8883,
+            tls={'ca_certs': None} # A veces es necesario definir el diccionario de tls
+        )
+        
+        return JsonResponse({"status": "ok", "mensaje": "Configuración enviada"})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error MQTT: {str(e)}"}, status=500)
+
 
 def login_view(request):
     return render(request, 'index.html')
@@ -122,18 +148,44 @@ def registro_api(request):
 
 @csrf_exempt
 def actualizar_config_api(request):
-    if request.method != "POST": return JsonResponse({"error": "Solo POST"}, status=405)
+    if request.method != "POST":
+        return JsonResponse({"error": "Solo se permite POST"}, status=405)
+    
     try:
         data = json.loads(request.body)
+        
+        # 🔹 Publicar al ESP32 vía MQTT
         publish.single(
-            "jhosimar/config", json.dumps(data),
+            "jhosimar/config", 
+            json.dumps(data), 
+            hostname=os.environ.get("MQTT_BROKER"),
+            auth={
+                'username': os.environ.get("MQTT_USER"), 
+                'password': os.environ.get("MQTT_PASS")
+            },
+            port=8883,
+            tls={'ca_certs': None} # A veces es necesario definir el diccionario de tls
+        )
+        
+        return JsonResponse({"status": "ok", "mensaje": "Configuración enviada"})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error MQTT: {str(e)}"}, status=500)
+@csrf_exempt
+def actualizar_config_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        # Publicar al topic de configuración del ESP32
+        publish.single(
+            "jhosimar/config", 
+            json.dumps(data), 
             hostname=os.environ.get("MQTT_BROKER"),
             auth={'username': os.environ.get("MQTT_USER"), 'password': os.environ.get("MQTT_PASS")},
-            port=8883, tls={'ca_certs': None}
+            port=8883,
+            tls={'ca_certs': None}
         )
         return JsonResponse({"status": "ok"})
-    except Exception as e: return JsonResponse({"error": str(e)}, status=500)
-
+    return JsonResponse({"error": "Método no permitido"}, status=405)
 
 @csrf_exempt
 def detener_incubacion_api(request):
