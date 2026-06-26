@@ -78,7 +78,7 @@ def detener_incubacion_api(request):
 
 
 
-    @csrf_exempt
+@csrf_exempt
 def exportar_csv_api(request):
     if request.method != "POST":
         return JsonResponse({"error": "Solo POST"}, status=405)
