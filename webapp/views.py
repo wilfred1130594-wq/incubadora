@@ -1,6 +1,8 @@
 import json
 import os
 import paho.mqtt.publish as publish
+import csv
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -73,3 +75,35 @@ def detener_incubacion_api(request):
         )
         return JsonResponse({"status": "ok"})
     except Exception as e: return JsonResponse({"error": str(e)}, status=500)
+
+
+
+    @csrf_exempt
+def exportar_csv_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Solo POST"}, status=405)
+    
+    body = json.loads(request.body)
+    id_incubadora = body.get("id")
+    fecha_inicio = body.get("fecha_inicio") # Formato: YYYY-MM-DD
+    fecha_fin = body.get("fecha_fin")       # Formato: YYYY-MM-DD
+    
+    # Consultar Supabase
+    respuesta = (supabase.table("datos_incubadora")
+                 .select("*")
+                 .eq("id_incubadora", id_incubadora)
+                 .gte("fecha_hora", f"{fecha_inicio}T00:00:00")
+                 .lte("fecha_hora", f"{fecha_fin}T23:59:59")
+                 .execute())
+    
+    # Crear respuesta CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="datos_incubadora.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Fecha', 'Temperatura', 'Humedad']) # Encabezados
+    
+    for fila in respuesta.data:
+        writer.writerow([fila['fecha_hora'], fila['temperatura'], fila['humedad']])
+        
+    return response
