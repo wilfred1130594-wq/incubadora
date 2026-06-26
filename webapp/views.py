@@ -1,9 +1,38 @@
+import json
+import os
+import paho.mqtt.publish as publish # 🔹 IMPORTANTE: Esto faltaba
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-import json
-
 from .supabase_client import supabase
+
+# ... (tus funciones login_view, registro_view, dashboard_view se quedan igual) ...
+
+@csrf_exempt
+def actualizar_config_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Solo se permite POST"}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        
+        # 🔹 Publicar al ESP32 vía MQTT
+        publish.single(
+            "jhosimar/config", 
+            json.dumps(data), 
+            hostname=os.environ.get("MQTT_BROKER"),
+            auth={
+                'username': os.environ.get("MQTT_USER"), 
+                'password': os.environ.get("MQTT_PASS")
+            },
+            port=8883,
+            tls={'ca_certs': None} # A veces es necesario definir el diccionario de tls
+        )
+        
+        return JsonResponse({"status": "ok", "mensaje": "Configuración enviada"})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error MQTT: {str(e)}"}, status=500)
 
 
 def login_view(request):
@@ -116,10 +145,29 @@ def registro_api(request):
             status=500
         )
     
+
 @csrf_exempt
 def actualizar_config_api(request):
-    if request.method == "POST":
-        # 1. Recibes el JSON del frontend
-        # 2. Publicas el mensaje al broker MQTT (usando la librería paho-mqtt)
-        # 3. Retornas {"status": "ok"}
-        return JsonResponse({"status": "ok"})
+    if request.method != "POST":
+        return JsonResponse({"error": "Solo se permite POST"}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        
+        # 🔹 Publicar al ESP32 vía MQTT
+        publish.single(
+            "jhosimar/config", 
+            json.dumps(data), 
+            hostname=os.environ.get("MQTT_BROKER"),
+            auth={
+                'username': os.environ.get("MQTT_USER"), 
+                'password': os.environ.get("MQTT_PASS")
+            },
+            port=8883,
+            tls={'ca_certs': None} # A veces es necesario definir el diccionario de tls
+        )
+        
+        return JsonResponse({"status": "ok", "mensaje": "Configuración enviada"})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error MQTT: {str(e)}"}, status=500)

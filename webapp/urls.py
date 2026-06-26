@@ -8,4 +8,5 @@ urlpatterns = [
 
     path('login/', views.login_api),
     path('api/registro/', views.registro_api),
+    path('actualizar-config/', views.actualizar_config_api),
 ]
