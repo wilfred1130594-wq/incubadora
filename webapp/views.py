@@ -33,18 +33,32 @@ def registro_api(request):
 # --- APIs de control MQTT ---
 @csrf_exempt
 def actualizar_config_api(request):
-    if request.method != "POST": return JsonResponse({"error": "Solo POST"}, status=405)
+    if request.method != "POST":
+        return JsonResponse({"error": "Solo POST"}, status=405)
+    
     try:
         data = json.loads(request.body)
+        print(f"DEBUG: Recibido en Django: {data}") # <-- ESTO APARECERÁ EN LOS LOGS DE RENDER
+        
+        # Validar campos obligatorios
+        required = ["id", "set_temp", "set_hum", "set_dias", "set_rot"]
+        for field in required:
+            if field not in data:
+                return JsonResponse({"error": f"Falta el campo: {field}"}, status=400)
+
         publish.single(
-            "jhosimar/config", json.dumps(data),
+            "jhosimar/config", 
+            json.dumps(data),
             hostname=os.environ.get("MQTT_BROKER"),
             auth={'username': os.environ.get("MQTT_USER"), 'password': os.environ.get("MQTT_PASS")},
-            port=8883, tls={'ca_certs': None}
+            port=8883, 
+            tls={'ca_certs': None}
         )
-        return JsonResponse({"status": "ok"})
-    except Exception as e: return JsonResponse({"error": str(e)}, status=500)
-
+        return JsonResponse({"status": "ok", "mensaje": "Datos enviados a MQTT"})
+    
+    except Exception as e:
+        print(f"DEBUG ERROR: {str(e)}") # <-- Muestra el error real en los logs
+        return JsonResponse({"error": str(e)}, status=500)
 @csrf_exempt
 def detener_incubacion_api(request):
     if request.method != "POST": return JsonResponse({"error": "Solo POST"}, status=405)
