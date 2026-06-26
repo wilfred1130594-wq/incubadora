@@ -190,14 +190,15 @@ def actualizar_config_api(request):
 @csrf_exempt
 def detener_incubacion_api(request):
     if request.method == "POST":
-        # Publicar comando de apagado al ESP32
+        # Incluimos el ID de la incubadora en el mensaje
+        data = {
+            "estado": "Inactiva",
+            "id": "ENCUB_0001" # <-- Asegúrate de poner aquí el ID que espera tu ESP32
+        }
+        
         publish.single(
             "jhosimar/config", 
-            json.dumps({"estado": "Inactiva"}), 
-            hostname=os.environ.get("MQTT_BROKER"),
-            auth={'username': os.environ.get("MQTT_USER"), 'password': os.environ.get("MQTT_PASS")},
-            port=8883,
-            tls={'ca_certs': None}
+            json.dumps(data), 
+            ...
         )
         return JsonResponse({"status": "ok"})
-    return JsonResponse({"error": "Método no permitido"}, status=405)
