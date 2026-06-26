@@ -193,15 +193,17 @@ async function guardarCambios() {
 async function cancelarIncubacion() {
     if (!confirm("⚠️ ¿Estás seguro de detener la incubadora?")) return;
 
+    const id = localStorage.getItem("id_incubadora"); // Recuperamos el ID
+
     try {
         const response = await fetch('/detener-incubacion/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id }) // Enviamos el ID al backend
         });
 
-        if (!response.ok) throw new Error("Error al enviar comando de parada");
-
-        alert("🛑 Comando de parada enviado al ESP32");
+        if (!response.ok) throw new Error("Error al enviar comando");
+        alert("🛑 Comando de parada enviado");
         cargarEstadoActual();
     } catch (err) {
         alert("❌ Error: " + err.message);
