@@ -189,19 +189,19 @@ async function guardarCambios() {
 }
 
 // 7. FUNCIONES DE APOYO
+// Cambia tu función cancelarIncubacion en dashboard.js
 async function cancelarIncubacion() {
-    if (!confirm("⚠️ ¿Estás seguro de cancelar? El sistema se apagará.")) return;
+    if (!confirm("⚠️ ¿Estás seguro de detener la incubadora?")) return;
 
-    const id = localStorage.getItem("id_incubadora");
     try {
-        const { error } = await _supabase
-            .from('estado_incubadora')
-            .update({ estado: "Inactiva" })
-            .eq('id_incubadora', id);
+        const response = await fetch('/detener-incubacion/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
 
-        if (error) throw error;
+        if (!response.ok) throw new Error("Error al enviar comando de parada");
 
-        alert("🛑 Comando de parada enviado");
+        alert("🛑 Comando de parada enviado al ESP32");
         cargarEstadoActual();
     } catch (err) {
         alert("❌ Error: " + err.message);

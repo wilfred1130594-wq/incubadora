@@ -171,3 +171,33 @@ def actualizar_config_api(request):
         
     except Exception as e:
         return JsonResponse({"error": f"Error MQTT: {str(e)}"}, status=500)
+    @csrf_exempt
+def actualizar_config_api(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        # Publicar al topic de configuración del ESP32
+        publish.single(
+            "jhosimar/config", 
+            json.dumps(data), 
+            hostname=os.environ.get("MQTT_BROKER"),
+            auth={'username': os.environ.get("MQTT_USER"), 'password': os.environ.get("MQTT_PASS")},
+            port=8883,
+            tls={'ca_certs': None}
+        )
+        return JsonResponse({"status": "ok"})
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+@csrf_exempt
+def detener_incubacion_api(request):
+    if request.method == "POST":
+        # Publicar comando de apagado al ESP32
+        publish.single(
+            "jhosimar/config", 
+            json.dumps({"estado": "Inactiva"}), 
+            hostname=os.environ.get("MQTT_BROKER"),
+            auth={'username': os.environ.get("MQTT_USER"), 'password': os.environ.get("MQTT_PASS")},
+            port=8883,
+            tls={'ca_certs': None}
+        )
+        return JsonResponse({"status": "ok"})
+    return JsonResponse({"error": "Método no permitido"}, status=405)
