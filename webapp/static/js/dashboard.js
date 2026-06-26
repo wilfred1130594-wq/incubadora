@@ -3,7 +3,7 @@
 const SUPABASE_URL = "https://qpuvmkpgdcsahewfuqre.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdXZta3BnZGNzYWhld2Z1cXJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MjY0NzYsImV4cCI6MjA5MzQwMjQ3Nn0.U0SQh1xIWh9IV6Bk3jVFr3V-AraEZG8rg40niwi-3cY";
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const API_URL = "https://incubadora-backend.onrender.com"; // Reemplaza con tu URL real
+const API_URL = "https://incubadora.onrender.com"; // Reemplaza con tu URL real
 
 let chart;
 let estadoActual = "INACTIVA";
