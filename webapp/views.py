@@ -171,7 +171,7 @@ def actualizar_config_api(request):
         
     except Exception as e:
         return JsonResponse({"error": f"Error MQTT: {str(e)}"}, status=500)
-    @csrf_exempt
+@csrf_exempt
 def actualizar_config_api(request):
     if request.method == "POST":
         data = json.loads(request.body)
